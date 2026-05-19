@@ -1,0 +1,759 @@
+/* =========== Google Fonts ============ */
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap");
+
+/* =============== Globals ============== */
+* {
+  font-family: "Ubuntu", sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --blue: #b19777;
+  --white: #fff;
+  --gray: #f5f5f5;
+  --black1: #222;
+  --black2: #999;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.container {
+  position: relative;
+  width: 100%;
+}
+
+/* =============== Navigation ================ */
+.navigation {
+  position: fixed;
+  width: 300px;
+  height: 100%;
+  background: var(--blue);
+  border-left: 10px solid var(--blue);
+  transition: 0.5s;
+  overflow: hidden;
+}
+.navigation.active {
+  width: 80px;
+}
+
+.navigation ul {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.navigation ul li {
+  position: relative;
+  width: 100%;
+  list-style: none;
+  border-top-left-radius: 30px;
+  border-bottom-left-radius: 30px;
+}
+
+.navigation ul li:hover,
+.navigation ul li.hovered {
+  background-color: var(--white);
+}
+
+.navigation ul li:nth-child(1) {
+  margin-bottom: 40px;
+  pointer-events: none;
+}
+
+.navigation ul li a {
+  position: relative;
+  display: block;
+  width: 100%;
+  display: flex;
+  text-decoration: none;
+  color: black;
+}
+.navigation ul li:hover a,
+.navigation ul li.hovered a {
+  color: var(--blue);
+}
+
+.navigation ul li a .icon {
+  position: relative;
+  display: block;
+  min-width: 60px;
+  height: 60px;
+  line-height: 75px;
+  text-align: center;
+}
+.navigation ul li a .icon ion-icon {
+  font-size: 1.75rem;
+}
+
+.navigation ul li a .title {
+  position: relative;
+  display: block;
+  padding: 0 10px;
+  height: 60px;
+  line-height: 60px;
+  text-align: start;
+  white-space: nowrap;
+}
+
+/* --------- curve outside ---------- */
+.navigation ul li:hover a::before,
+.navigation ul li.hovered a::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: -50px;
+  width: 50px;
+  height: 50px;
+  background-color: transparent;
+  border-radius: 50%;
+  box-shadow: 35px 35px 0 10px var(--white);
+  pointer-events: none;
+}
+.navigation ul li:hover a::after,
+.navigation ul li.hovered a::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -50px;
+  width: 50px;
+  height: 50px;
+  background-color: transparent;
+  border-radius: 50%;
+  box-shadow: 35px -35px 0 10px var(--white);
+  pointer-events: none;
+}
+
+/* ===================== Main ===================== */
+.main {
+  position: absolute;
+  width: calc(100% - 300px);
+  left: 300px;
+  min-height: 100vh;
+  background: var(--white);
+  transition: 0.5s;
+}
+.main.active {
+  width: calc(100% - 80px);
+  left: 80px;
+}
+
+.topbar {
+  width: 100%;
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.toggle {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.5rem;
+  cursor: pointer;
+}
+
+.search {
+  position: relative;
+  width: 400px;
+  margin: 0 10px;
+}
+
+.search label {
+  position: relative;
+  width: 100%;
+}
+
+.search label input {
+  width: 100%;
+  height: 40px;
+  border-radius: 40px;
+  padding: 5px 20px;
+  padding-left: 35px;
+  font-size: 18px;
+  outline: none;
+  border: 1px solid var(--black2);
+}
+
+.search label ion-icon {
+  position: absolute;
+  top: 0;
+  left: 10px;
+  font-size: 1.2rem;
+}
+
+.user {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.user img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ======================= Cards ====================== */
+.cardBox {
+  position: relative;
+  width: 100%;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 30px;
+}
+
+.cardBox .card {
+  position: relative;
+  background: var(--white);
+  padding: 30px;
+  border-radius: 20px;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  box-shadow: 0 7px 25px rgba(0, 0, 0, 0.08);
+}
+
+.cardBox .card .numbers {
+  position: relative;
+  font-weight: 500;
+  font-size: 2.5rem;
+  color: var(--blue);
+}
+
+.cardBox .card .cardName {
+  color: var(--black2);
+  font-size: 1.1rem;
+  margin-top: 5px;
+}
+
+.cardBox .card .iconBx {
+  font-size: 3.5rem;
+  color: var(--black2);
+}
+
+.cardBox .card:hover {
+  background: var(--blue);
+}
+.cardBox .card:hover .numbers,
+.cardBox .card:hover .cardName,
+.cardBox .card:hover .iconBx {
+  color: var(--white);
+}
+
+/* ================== Order Details List ============== */
+.details {
+  position: relative;
+  width: 100%;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-gap: 30px;
+  /* margin-top: 10px; */
+}
+
+.details .recentOrders {
+  position: relative;
+  display: grid;
+  min-height: 500px;
+  background: var(--white);
+  padding: 20px;
+  box-shadow: 0 7px 25px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+}
+
+.details .cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.cardHeader h2 {
+  font-weight: 600;
+  color: var(--blue);
+}
+.cardHeader .btn {
+  position: relative;
+  padding: 5px 10px;
+  background: var(--blue);
+  text-decoration: none;
+  color: var(--white);
+  border-radius: 6px;
+}
+
+.details table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+.details table thead td {
+  font-weight: 600;
+}
+.details .recentOrders table tr {
+  color: var(--black1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+.details .recentOrders table tr:last-child {
+  border-bottom: none;
+}
+.details .recentOrders table tbody tr:hover {
+  background: var(--blue);
+  color: var(--white);
+}
+.details .recentOrders table tr td {
+  padding: 10px;
+}
+.details .recentOrders table tr td:last-child {
+  text-align: end;
+}
+.details .recentOrders table tr td:nth-child(2) {
+  text-align: end;
+}
+.details .recentOrders table tr td:nth-child(3) {
+  text-align: center;
+}
+.status.delivered {
+  padding: 2px 4px;
+  background: #8de02c;
+  color: var(--white);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.status.pending {
+  padding: 2px 4px;
+  background: #e9b10a;
+  color: var(--white);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.status.return {
+  padding: 2px 4px;
+  background: #f00;
+  color: var(--white);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.status.inProgress {
+  padding: 2px 4px;
+  background: #b19777;
+  color: var(--white);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.recentCustomers {
+  position: relative;
+  display: grid;
+  min-height: 500px;
+  padding: 20px;
+  background: var(--white);
+  box-shadow: 0 7px 25px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+}
+.recentCustomers .imgBx {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50px;
+  overflow: hidden;
+}
+.recentCustomers .imgBx img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.recentCustomers table tr td {
+  padding: 12px 10px;
+}
+.recentCustomers table tr td h4 {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.2rem;
+}
+.recentCustomers table tr td h4 span {
+  font-size: 14px;
+  color: var(--black2);
+}
+.recentCustomers table tr:hover {
+  background: var(--blue);
+  color: var(--white);
+}
+.recentCustomers table tr:hover td h4 span {
+  color: var(--white);
+}
+
+/* ====================== Responsive Design ========================== */
+@media (max-width: 991px) {
+  .navigation {
+    left: -300px;
+  }
+  .navigation.active {
+    width: 300px;
+    left: 0;
+  }
+  .main {
+    width: 100%;
+    left: 0;
+  }
+  .main.active {
+    left: 300px;
+  }
+  .cardBox {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .details {
+    grid-template-columns: 1fr;
+  }
+  .recentOrders {
+    overflow-x: auto;
+  }
+  .status.inProgress {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .cardBox {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  .cardHeader h2 {
+    font-size: 20px;
+  }
+  .user {
+    min-width: 40px;
+  }
+  .navigation {
+    width: 100%;
+    left: -100%;
+    z-index: 1000;
+  }
+  .navigation.active {
+    width: 100%;
+    left: 0;
+  }
+  .toggle {
+    z-index: 10001;
+  }
+  .main.active .toggle {
+    color: #fff;
+    position: fixed;
+    right: 0;
+    left: initial;
+  }
+}
+
+/* Sidebar shell */
+.admin-sidebar{
+  position:sticky; top:0; left:0;
+  width:260px; min-height:100vh;
+  background:#b79a76; /* your beige */
+  padding:18px 14px;
+}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.brand-logo{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:#fff}
+.brand-text{font-weight:800;color:#111;letter-spacing:.2px}
+
+/* Menu items */
+.menu{display:flex;flex-direction:column;gap:4px}
+.menu-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:10px;text-decoration:none;
+  color:#1b120a;background:transparent;font-weight:700;
+}
+.menu-item .icon{opacity:.9}
+.menu-item:hover{background:rgba(255,255,255,.35)}
+.menu-item.active{background:#111;color:#fff}
+.menu-item.active .icon{color:#fff}
+
+/* Groups / submenu */
+.menu-group{margin:4px 0}
+.menu-item.has-children{width:100%;justify-content:space-between}
+.menu-group .chev{margin-left:auto;opacity:.9;transition:transform .2s}
+.menu-group.open .chev{transform:rotate(180deg)}
+.submenu{display:none;flex-direction:column;padding-left:12px}
+.menu-group.open .submenu{display:flex}
+.submenu-item{
+  padding:9px 12px;border-radius:10px;text-decoration:none;color:#1b120a;font-weight:600
+}
+.submenu-item:hover{background:rgba(255,255,255,.3)}
+.submenu-item.active{background:#111;color:#fff}
+
+/* Make layout work with your existing .container/.main layout */
+@media (max-width: 1024px){
+  .admin-sidebar{position:fixed;z-index:1000;transform:translateX(0)}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*dashboard css*/
+
+
+
+
+:root{
+  --bg:#f6f7f9; --panel:#fff; --text:#0f172a; --muted:#64748b;
+  --brand:#b79a76; --line:#e5e7eb; --shadow:0 10px 28px rgba(2,8,23,.06);
+}
+
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+
+/* Page shell that matches your PHP includes */
+.container{display:flex; min-height:100vh}
+.admin-sidebar{
+  position:sticky; top:0; left:0;
+  width:260px; min-height:100vh;
+  background:var(--brand);
+  padding:18px 14px;
+}
+.main{flex:1; background:var(--bg)}
+
+/* Brand */
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.brand-logo{display:grid;place-items:center;width:60px;height:60px;border-radius:10px;background:#fff}
+.brand-text{font-weight:800;color:#111}
+
+/* Menu */
+.menu{display:flex;flex-direction:column;gap:4px}
+.menu-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:10px;
+  color:#1b120a;background:transparent;font-weight:700;
+}
+.menu-item:hover{background:rgba(255,255,255,.35)}
+.menu-item.active{background:#111;color:#fff}
+.menu-item .icon{opacity:.9}
+
+.menu-group{margin:4px 0}
+.menu-item.has-children{width:100%;justify-content:space-between}
+.menu-group .chev{margin-left:auto;opacity:.9;transition:transform .2s}
+.menu-group.open .chev{transform:rotate(180deg)}
+.submenu{display:none;flex-direction:column;padding-left:12px}
+.menu-group.open .submenu{display:flex}
+.submenu-item{padding:9px 12px;border-radius:10px;font-weight:600}
+.submenu-item:hover{background:rgba(255,255,255,.3)}
+.submenu-item.active{background:#111;color:#fff}
+
+/* Content card + table (from earlier) */
+.content-wrapper{padding:28px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px}
+.table-wrap{overflow:auto;border-radius:12px;border:1px solid var(--line);background:#fff}
+table{width:100%;border-collapse:separate;border-spacing:0}
+thead th{position:sticky;top:0;background:#fafafa;border-bottom:1px solid var(--line);padding:12px 14px;font-weight:700;text-align:left}
+tbody td{padding:12px 14px;border-top:1px solid var(--line)}
+tbody tr:nth-child(even){background:#fcfcfd}
+tbody tr:hover{background:#f8fafc}
+.badge{display:inline-block;padding:6px 10px;border-radius:20px;background:#f3f2f0;color:#2b2b2b;font-weight:700;font-size:12px}
+.truncate{max-width:360px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* --- Blog button style (to match Pages, Meta & SEO, etc.) --- */
+.menu-item.blog-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #b19777; /* same background as other boxes */
+  color: #000; /* text color */
+  font-weight: 600;
+  border: 1.5px solid #3b2f1b; /* same dark border as others */
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 8px 0;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+/* Hover effect */
+.menu-item.blog-link:hover {
+  background: #c4ac8b; /* slightly lighter hover */
+}
+
+/* Icon + text alignment */
+.menu-item.blog-link .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Active state (if current page is blog) */
+.menu-item.blog-link.active {
+  background: #000;
+  color: #fff;
+}
+
+
+
+/* dropdown show/hide */
+.menu-group .submenu { display: none; }
+.menu-group.open .submenu { display: block; }
+
+/* chevron rotate (optional) */
+.menu-item.has-children .chev { transition: transform .2s ease; }
+.menu-group.open .chev { transform: rotate(180deg); }
+
+
+
+
+/* --- Sidebar submenu: clean, single-column chips --- */
+
+/* container */
+.menu-group .submenu{
+  display:none;                 /* JS toggles .open to show */
+  padding:10px;
+  margin:8px 8px 12px;
+  border:1.5px solid #3b2f1b;   /* match your theme border */
+  border-radius:12px;
+  background: rgba(255,255,255,.08);
+}
+
+/* show when open */
+.menu-group.open .submenu{ display:block; }
+
+/* section headers like "Stay", "Dining", etc. (not clickable) */
+.submenu.section-title,
+.submenu .section-title{
+  margin:12px 4px 6px;
+  font-size:12px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:#2d2416;
+  opacity:.75;
+  font-weight:800;
+}
+
+/* links look like small, rounded buttons */
+.submenu .submenu-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+  margin:4px 0;
+  border:1.5px solid #3b2f1b;
+  border-radius:10px;
+  background:#b19777;          /* your tan */
+  color:#111;
+  text-decoration:none;
+  font-weight:700;
+  line-height:1.1;
+  white-space:nowrap;           /* keep one line */
+}
+
+/* hover/active */
+.submenu .submenu-item:hover{
+  background:#c4ac8b;
+}
+.submenu .submenu-item.active{
+  background:#000;
+  color:#fff;
+}
+
+/* prevent multi-column wrapping */
+.submenu{
+  display:block;
+}
+.submenu a,
+.submenu .section-title{
+  display:block;
+}
+
+/* chevron rotation (for the main "Pages" button) */
+.menu-item.has-children .chev{ transition:transform .2s ease; }
+.menu-group.open .chev{ transform:rotate(180deg); }
+
+
+/* ----- Layout: make the sidebar full-height and avoid the bottom gap ----- */
+html, body { height: 100%; }
+body { margin: 0; }
+
+.container {
+  display: flex;
+  min-height: 100vh;          /* stretch layout to viewport height */
+  background: #f7f8fa;
+}
+
+/* Sidebar column */
+.admin-sidebar {
+  flex: 0 0 260px;            /* fixed width */
+  background: #c1a581;        /* your tan */
+  border-right: 1px solid #b0906c;
+  position: sticky;           /* pin to viewport when page scrolls */
+  top: 0;
+  height: 100vh;              /* ALWAYS full height */
+  overflow-y: auto;           /* scroll its own content */
+  overscroll-behavior: contain;
+}
+
+/* Main content column */
+.main {
+  flex: 1 1 auto;
+  min-width: 0;               /* prevent overflow with grids/tables */
+  background: #fff;
+}
+
+/* Menu behaviors (dropdowns) */
+.menu-group .submenu { display: none; padding: 6px 10px 10px; }
+.menu-group.open .submenu { display: block; }
+
+.submenu-item {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 12px; border-radius:8px; text-decoration:none; color:#111;
+}
+.submenu-item:hover, .submenu-item.active { background: rgba(0,0,0,.06); }
+.menu .chev { opacity:.8; }
+
+/* Level-2 nested submenu (for Stay & Gallery) */
+.submenu-group .submenu-2 { display:none; padding-left: 10px; }
+.submenu-group.open .submenu-2 { display:block; }
+
+.submenu-item-2 {
+  display:block; padding:8px 12px 8px 26px; margin:2px 0;
+  border-radius:8px; color:#111; text-decoration:none;
+}
+.submenu-item-2:hover, .submenu-item-2.active { background: rgba(0,0,0,.05); }

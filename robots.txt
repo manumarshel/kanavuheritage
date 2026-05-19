@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://kanavuheritage.com/sitemap.xml

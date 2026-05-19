@@ -1,0 +1,499 @@
+/* C:\xampp\htdocs\kanav\css\booking.css */
+
+/* -----------------------------
+   ✅ Prevent mobile horizontal scroll
+   (Fixes left text cut + empty right gap)
+-------------------------------- */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Also keep booking section contained */
+#booking-section,
+#booking-section * {
+  box-sizing: border-box;
+}
+#booking-section {
+  overflow-x: hidden;
+}
+
+/* Alerts */
+.alert {
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin: 10px 0;
+}
+.alert-err {
+  background: #fff5f5;
+  border: 1px solid #f3c2c2;
+  color: #8a1f1f;
+}
+.alert-ok {
+  background: #ecfdf3;
+  border: 1px solid #a7f3d0;
+  color: #166534;
+}
+
+/* QR Payment Modal */
+.kh-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: none; /* shown via JS */
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+.kh-modal-dialog {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px 24px 18px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 18px 45px rgba(0,0,0,0.25);
+}
+.kh-modal-img {
+  max-width: 230px;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border: 1px solid #e5e7eb;
+}
+.kh-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #1f2933;
+}
+.kh-modal-text {
+  font-size: 14px;
+  color: #4b5563;
+  margin-bottom: 18px;
+}
+
+/* === Transparent booking layout === */
+.booking-form-shell {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 35px;
+  flex-wrap: wrap;
+  align-items: stretch; /* equal height panels */
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden; /* ✅ ensure flex children can't create page scroll */
+}
+
+/* Make sure bootstrap column doesn't shrink weirdly */
+.booking-form-shell > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.booking-panel,
+.availability-panel {
+  border-radius: 6px;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.25);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+  backdrop-filter: blur(10px);
+  max-width: 100%;
+  min-width: 0; /* ✅ IMPORTANT: prevents mobile overflow */
+}
+
+/* ✅ Default flex behavior without forcing min-width (prevents mobile overflow) */
+.availability-panel {
+  flex: 1 1 520px;
+  color: #fff;
+  display: flex;
+  flex-direction: column; /* header + body stretch */
+}
+
+.booking-panel {
+  flex: 1 1 420px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column; /* tabs + form stretch */
+}
+
+/* ✅ Only enforce wider min-widths on large screens (desktop) */
+@media (min-width: 992px) {
+  .availability-panel { flex: 1.2; min-width: 420px; }
+  .booking-panel      { flex: 0.8; min-width: 340px; }
+}
+
+/* datepicker icon visible on dark bg */
+.booking-panel input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.8);
+  cursor: pointer;
+  opacity: 1;
+}
+.booking-panel input[type="date"] {
+  color: white;
+}
+
+.booking-tabs {
+  display: flex;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  background: rgba(0,0,0,0.25);
+}
+.booking-tab {
+  flex: 1;
+  padding: 10px 14px;
+  color: rgba(255,255,255,0.7);
+  text-align: center;
+  border-bottom: 2px solid transparent;
+}
+.booking-tab.active {
+  color: #ffffff;
+  border-bottom-color: #d8b257;
+  font-weight: 600;
+}
+
+.booking-form-inner {
+  padding: 16px 18px 18px;
+}
+
+.booking-panel .form-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 4px;
+}
+
+.booking-panel .form-control,
+.booking-panel .form-select {
+  width: 100%;
+  background: rgba(0,0,0,0.55);
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #ffffff;
+  font-size: 13px;
+  height: 40px;
+}
+
+.booking-panel .form-control::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.booking-panel .form-control:focus,
+.booking-panel .form-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(216,178,87,0.85);
+  border-color: #d8b257;
+}
+
+/* ✅ Make pills never cause overflow */
+.booking-type-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;         /* ✅ */
+  max-width: 100%;
+}
+.booking-type-pill {
+  flex: 1 1 110px;         /* ✅ */
+  position: relative;
+  cursor: pointer;
+  font-size: 12px;
+  min-width: 110px;        /* ✅ keeps clean wrap */
+}
+.booking-type-pill input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.booking-type-pill span {
+  display: block;
+  padding: 7px 6px;
+  text-align: center;
+  border-radius: 3px;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.8);
+  font-size: 12px;
+}
+.booking-type-pill input:checked + span {
+  background: #d8b257;
+  border-color: #d8b257;
+  color: #111111;
+  font-weight: 600;
+}
+
+.btn-booking {
+  width: 100%;
+  margin-top: 4px;
+  padding: 11px 16px;
+  border-radius: 0 0 4px 4px;
+  border: none;
+  background: linear-gradient(90deg, #d8b257, #f1c96c);
+  color: #111111;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: .08em;
+  cursor: pointer;
+}
+.btn-booking:hover {
+  filter: brightness(1.05);
+}
+
+/* status box inside dark panel */
+.booking-panel #statusBox {
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+/* Availability panel styles */
+.availability-panel-header {
+  padding: 12px 16px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.18);
+  max-width: 100%;
+}
+.availability-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: #f5f5f5;
+  margin: 0;
+}
+.availability-subtitle {
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+  margin-top: 3px;
+}
+
+.availability-body {
+  padding: 10px 14px 14px;
+  font-size: 12px;
+  flex: 1; /* fill height */
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+}
+
+/* ============================
+   ✅ Booked table scroll (X)
+   ✅ ONLY table scrolls, not page
+   ============================ */
+.availability-scroll {
+  flex: 1;
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;                 /* ✅ horizontal scroll */
+  overflow-y: hidden;               /* ✅ avoid squeezing/stacking */
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* keep table wider than panel so it scrolls on mobile */
+.availability-table {
+  width: 100%;
+  min-width: 720px;                 /* ✅ enables horizontal scroll inside wrapper */
+  border-collapse: collapse;
+  font-size: 12px;
+  color: #f9fafb;
+}
+
+.availability-table thead {
+  background: rgba(0,0,0,0.35);
+}
+.availability-table th,
+.availability-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  text-align: left;
+  white-space: nowrap;
+}
+.availability-table th {
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: rgba(255,255,255,0.8);
+}
+.availability-table tr:last-child td {
+  border-bottom: none;
+}
+
+.availability-status {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(216,178,87,0.2);
+  border: 1px solid rgba(216,178,87,0.6);
+  color: #fcdca0;
+  text-transform: capitalize;
+}
+
+.availability-empty {
+  padding: 8px 4px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.75);
+}
+
+/* Optional: nicer scrollbar height */
+.availability-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+.availability-scroll::-webkit-scrollbar-thumb {
+  background: rgba(216,178,87,0.35);
+  border-radius: 999px;
+}
+.availability-scroll::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.08);
+}
+
+/* Pagination footer under table */
+.availability-pagination {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  gap: 8px;
+}
+.availability-page-info {
+  color: rgba(255,255,255,0.8);
+}
+.availability-page-links {
+  text-align: right;
+}
+.availability-page-btn {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(216,178,87,0.7);
+  color: #fcdca0;
+  text-decoration: none;
+  margin-left: 4px;
+}
+.availability-page-btn:hover {
+  background: rgba(216,178,87,0.2);
+}
+
+/* ============================
+   ✅ Mobile full width panels
+   ============================ */
+@media (max-width: 767.98px) {
+  .booking-form-shell {
+    gap: 14px;
+    margin-top: 18px;
+  }
+
+  /* full width panels */
+  .availability-panel,
+  .booking-panel {
+    width: 100%;
+    min-width: 0 !important;
+    flex: 1 1 100%;
+  }
+
+  /* reduce padding a bit */
+  .availability-panel-header {
+    padding: 12px 12px 8px;
+  }
+  .availability-body {
+    padding: 10px 12px 12px;
+  }
+  .booking-form-inner {
+    padding: 14px 12px 14px;
+  }
+
+  /* ✅ WhatsApp FAB safe area so it doesn't cover fields */
+  #booking-section {
+    padding-bottom: 90px;
+  }
+}
+
+/* Extra-small devices polish */
+@media (max-width: 420px) {
+  .booking-type-pill { min-width: 100px; }
+}
+/* ============================
+   ✅ Normal padding + margin (Web + Mobile)
+   ============================ */
+
+/* Container side padding */
+#booking-section .container {
+  padding-left: 15px !important;
+  padding-right: 15px !important;
+}
+
+/* Space around the whole booking block (top/bottom margin feel) */
+#booking-section {
+  padding-top: 18px;
+  padding-bottom: 90px; /* keeps WhatsApp button from covering */
+}
+
+/* Space between heading/text and panels */
+#booking-section .section-title {
+  margin-bottom: 12px;
+}
+#booking-section h5 {
+  margin: 10px 0 18px;  /* top | left-right | bottom */
+}
+
+/* Panels wrapper gets normal side breathing room */
+.booking-form-shell {
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 12px;
+  padding-right: 12px;
+  margin-top: 18px; /* overrides huge gap look */
+}
+
+/* Panels: add normal outer margin so they don’t touch edges */
+.booking-panel,
+.availability-panel {
+  margin: 0 auto;
+}
+
+/* ============================
+   ✅ Desktop tuning
+   ============================ */
+@media (min-width: 992px) {
+  #booking-section .container {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  #booking-section {
+    padding-top: 26px;
+    padding-bottom: 40px;
+  }
+
+  .booking-form-shell {
+    padding-left: 18px;
+    padding-right: 18px;
+    margin-top: 22px;
+  }
+}
+
+/* ============================
+   ✅ Mobile tuning
+   ============================ */
+@media (max-width: 767.98px) {
+  #booking-section .container {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  .booking-form-shell {
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-top: 14px;
+  }
+
+  /* A little spacing between stacked panels */
+  .availability-panel,
+  .booking-panel {
+    margin-bottom: 12px;
+  }
+}
