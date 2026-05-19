@@ -42,8 +42,8 @@ if ($conn) {
           FROM bookings b
           LEFT JOIN packages p ON p.id = b.package_id
           WHERE b.booking_status IN ('pending','approved')
-          ORDER BY b.check_in DESC, b.id DESC
-          LIMIT 10";
+            AND b.check_out >= CURDATE()
+          ORDER BY b.check_in ASC";
   if ($res = $conn->query($sql)) {
     while ($row = $res->fetch_assoc()) {
       $bookedDates[] = $row;
@@ -155,6 +155,8 @@ if (is_file($seo_helper) && $conn) {
   <link rel="stylesheet" href="whatsapp_style.css" />
   <!-- Booking page specific styles -->
   <link rel="stylesheet" href="css/booking.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
 
   <!-- Page-level override for wider container on large screens -->
   <style>
@@ -169,11 +171,102 @@ if (is_file($seo_helper) && $conn) {
       padding: 8px 14px !important;
       border-radius: 24px !important;
       background: #f7f7f7 !important;
-      border: 1px solid #e0e0e0 !important;
       color: #222 !important;
       text-decoration: none !important;
       min-width: 140px !important;
     }
+    
+    .btn-booking-outline {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 6px 12px !important;
+      border-radius: 4px !important;
+      background: transparent !important;
+      border: 1px solid #d3be7d !important;
+      color: #d3be7d !important;
+      text-decoration: none !important;
+      white-space: nowrap !important;
+      transition: all 0.3s ease !important;
+      font-size: 0.9rem !important;
+    }
+    .btn-booking-outline:hover {
+      background: rgba(211, 190, 125, 0.1) !important;
+      color: #fff !important;
+    }
+
+    /* Flatpickr Theme Overrides (Kanavu Heritage) */
+    .flatpickr-calendar {
+        background: #111 !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.9) !important;
+        border: 1px solid #333 !important;
+        font-family: inherit !important;
+    }
+    .flatpickr-months {
+        background: #111 !important;
+    }
+    .flatpickr-weekdays {
+        background: #111 !important;
+        border-bottom: 1px solid #333 !important;
+    }
+    span.flatpickr-weekday {
+        background: #111 !important;
+        color: #888 !important;
+        font-weight: 500 !important;
+    }
+    .flatpickr-day {
+        color: #ccc !important;
+    }
+    .flatpickr-day.selected, .flatpickr-day.selected:hover, .flatpickr-day.selected:focus {
+        background: #d3be7d !important;
+        border-color: #d3be7d !important;
+        color: #111 !important;
+        font-weight: bold !important;
+    }
+    .flatpickr-calendar.open {
+    border: 1px solid #7e7e7e !important;
+    overflow: hidden;
+    padding: 2px !important;
+}
+    .flatpickr-day:hover, .flatpickr-day:focus {
+        background: rgba(211, 190, 125, 0.15) !important;
+        border-color: rgba(211, 190, 125, 0.3) !important;
+        color: #d3be7d !important;
+    }.flatpickr-current-month {
+    padding: 7px 0px !important;
+    font-size: 14px !important;
+    font-weight: bold;
+    margin: 0px !important;
+    text-transform: uppercase !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+    .flatpickr-day.today {
+        border-color: #d3be7d !important;
+    }
+    .flatpickr-months .flatpickr-month,
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-current-month input.cur-year {
+        color: #fff !important;
+        background: #b19777 !important
+    }
+    .flatpickr-months .flatpickr-prev-month svg, .flatpickr-months .flatpickr-next-month svg {
+    fill: #ffffff !important;
+    position: relative;
+    top: -5px;
+    }
+    .flatpickr-day.flatpickr-disabled, .flatpickr-day.flatpickr-disabled:hover {
+    color: #ffffff !important;
+    background: #454545 !important;
+    border-color: #3b3b3b !important;
+    }
+    
+    input#check_in {
+    padding: 10px;
+    font-weight: bold;
+    font-size: 14px !important;
+}
     
     /* FullCalendar Dark Theme Overrides */
     #booking-calendar {
@@ -294,21 +387,14 @@ if (is_file($seo_helper) && $conn) {
               <!-- LEFT: Booked dates (latest 10) -->
               <div class="availability-panel">
                 <div class="availability-panel-header">
-                  <h3 class="availability-title">Booked / Unavailable Dates</h3>
+                  <h3 class="availability-title">Availability Calendar</h3>
                   <p class="availability-subtitle">
-                    Latest confirmed or pending stays (up to 10 entries).<br>
-                    <small>If your preferred date is <strong>not listed below</strong>, it is currently available to request
-                    (final confirmation after our manual review).</small>
+                    Select your preferred check-in date directly from the calendar.<br>
+                    <small>Dates highlighted in <strong>gold</strong> are already booked. All other dates are available to request.</small>
                   </p>
                 </div>
                 <div class="availability-body">
-                  <?php if ($totalBookings > 0): ?>
-                    <div id="booking-calendar"></div>
-                  <?php else: ?>
-                    <div class="availability-empty">
-                      No upcoming bookings found. All dates are currently available to request.
-                    </div>
-                  <?php endif; ?>
+                  <div id="booking-calendar"></div>
                 </div>
               </div>
 
@@ -368,7 +454,6 @@ if (is_file($seo_helper) && $conn) {
                         <option value="">-- Choose a package --</option>
                         <?php $idx = 0; foreach ($packages as $pkg): $idx++; ?>
                           <?php
-                            // keep data-types heuristics for backward compatibility
                             $types = [];
                             $n = strtolower($pkg['name'] ?? '');
                             if (strpos($n, 'stay') !== false || strpos($n, 'room') !== false || strpos($n, 'night') !== false) $types[] = 'stay';
@@ -376,28 +461,75 @@ if (is_file($seo_helper) && $conn) {
                             if (strpos($n, 'event') !== false || strpos($n, 'celebr') !== false || strpos($n, 'wedding') !== false) $types[] = 'event';
                             if (empty($types)) $types = ['stay','shoot','event'];
                           ?>
-                          <option value="<?= (int)$pkg['id'] ?>" data-types="<?= e(implode(',', $types)) ?>" data-idx="<?= $idx ?>">
+                          <option value="<?= (int)$pkg['id'] ?>" 
+                                  data-types="<?= e(implode(',', $types)) ?>" 
+                                  data-idx="<?= $idx ?>"
+                                  data-price="<?= (float)$pkg['price'] ?>"
+                                  data-duration="<?= (int)$pkg['nights'] ?>">
                             <?= e($pkg['name']) ?> — ₹<?= number_format($pkg['price'], 2) ?>
-                            (<?= e($pkg['duration']) ?>)
                           </option>
                         <?php endforeach; ?>
                       </select>
                     </div>
 
-                    <div class="mb-3">
-                      <label for="num_people" class="form-label">Number of people staying*</label>
-                      <input type="number" class="form-control" name="num_people" id="num_people"
-                             value="1" min="1" max="8" placeholder="Max 8 people per package" required>
+                    <!-- Dynamic Price Breakdown Box -->
+                    <div id="priceBreakdownBox" class="mb-3 p-3" style="display:none; background:rgba(211, 190, 125, 0.1); border:1px solid #d3be7d; border-radius:8px; color:#ddd;">
+                      <h6 style="color:#d3be7d; margin-bottom:10px;">Price Breakdown</h6>
+                      <div id="pb-base" class="d-flex justify-content-between mb-2">
+                        <span>Base Price (up to 4 persons):</span>
+                        <strong id="pb-base-val">₹0.00</strong>
+                      </div>
+                      <div id="pb-gst-line" class="d-flex justify-content-between mb-2">
+                        <span>GST (18%):</span>
+                        <strong id="pb-gst-val">₹0.00</strong>
+                      </div>
+                      <div id="pb-extra" class="d-flex justify-content-between mb-2" style="display:none !important;">
+                        <span>Extra Persons (<span id="pb-extra-count">0</span>):</span>
+                        <strong id="pb-extra-val">₹0.00</strong>
+                      </div>
+                      <hr style="border-color:#555; margin:10px 0;">
+                      <div class="d-flex justify-content-between mb-1" style="font-size:1.2rem; color:#fff; font-weight:bold;">
+                        <span>TOTAL AMOUNT:</span>
+                        <strong id="pb-total-val" style="color:#d3be7d;">₹0.00</strong>
+                      </div>
                     </div>
 
-                    <div class="mb-3 d-flex" style="gap:8px; flex-wrap:wrap;">
-                      <a href="dining.php" class="btn-booking" target="_blank" style="text-decoration:none;">
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label for="num_people" class="form-label">Number of people staying*</label>
+                        <select class="form-select" name="num_people" id="num_people" required>
+                          <option value="" disabled selected>-- Select No. of Persons --</option>
+                          <option value="1">1 Person</option>
+                          <option value="2">2 Persons</option>
+                          <option value="3">3 Persons</option>
+                          <option value="4">4 Persons</option>
+                          <option value="5">5 Persons (+ Extra Charge)</option>
+                          <option value="6">6 Persons (+ Extra Charge)</option>
+                          <option value="7">7 Persons (+ Extra Charge)</option>
+                          <option value="8">8 Persons (+ Extra Charge)</option>
+                        </select>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="check_in" class="form-label">Preferred Check-in Date*</label>
+                        <input type="text" class="form-control" name="check_in" id="check_in" placeholder="YYYY-MM-DD" required>
+                      </div>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                      <input type="checkbox" class="form-check-input" id="accept_terms" name="accept_terms" required>
+                      <label class="form-check-label" for="accept_terms" style="color:#ddd;">
+                        I accept the <a href="terms&conditions.php" target="_blank" style="color:#d3be7d; text-decoration:underline;">Terms & Conditions</a>
+                      </label>
+                    </div>
+
+                    <div class="mb-3 d-flex" style="gap:8px; flex-wrap:nowrap; overflow-x:auto; padding-bottom:4px;">
+                      <a href="dining.php" class="btn-booking-outline" target="_blank">
                         View Food Menu
                       </a>
-                      <a href="packages.php" class="btn-booking" target="_blank" style="text-decoration:none;">
+                      <a href="packages.php" class="btn-booking-outline" target="_blank">
                         Extra Bed
                       </a>
-                      <a href="terms&conditions.php" class="btn-booking" target="_blank" style="text-decoration:none;">
+                      <a href="terms&conditions.php" class="btn-booking-outline" target="_blank">
                         Terms & Conditions
                       </a>
                     </div>
@@ -405,15 +537,12 @@ if (is_file($seo_helper) && $conn) {
                     <div class="mb-3 small-text">
                       Enquire menu details and extra bed facility by contacting Kanav Heritage using the WhatsApp button below.
                       <br>
-                      <a href="https://wa.me/919567047633?text=Hello%20Kanav%20Heritage%2C%20I%20have%20a%20query%20about%20booking" target="_blank" class="btn-booking" style="margin-top:8px; display:inline-flex; align-items:center;">
+                      <button type="button" id="btnWhatsapp" class="btn-booking" style="background: #0c9d43 !important;margin-top:8px;display: inline-flex !important;color: white !important;">
                         <i class="fa fa-whatsapp" style="margin-right:8px"></i> WhatsApp Us
-                      </a>
+                      </button>
                     </div>
 
-                    <div class="mb-3">
-                      <label for="check_in" class="form-label">Preferred Check-in Date*</label>
-                      <input type="date" class="form-control" name="check_in" id="check_in" required>
-                    </div>
+                   
 
                     <div id="statusBox" class="alert" style="display:none"></div>
 
@@ -501,6 +630,7 @@ if (is_file($seo_helper) && $conn) {
         
         var calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'dayGridMonth',
+          initialDate: new Date(),
           headerToolbar: {
             left: 'prev,next today',
             center: 'title',
@@ -528,9 +658,180 @@ if (is_file($seo_helper) && $conn) {
                 break;
               }
             }
+          },
+          dateClick: function(info) {
+            var clickedDateStr = info.dateStr;
+            var isBooked = false;
+            
+            // Prevent selecting dates in the past
+            var todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+            if (clickedDateStr < todayStr) {
+                var statusBox = document.getElementById('statusBox');
+                if (statusBox) {
+                    statusBox.className = 'alert alert-danger';
+                    statusBox.innerHTML = '<strong>Error:</strong> Cannot select a past date.';
+                    statusBox.style.display = 'block';
+                    setTimeout(function(){ statusBox.style.display = 'none'; }, 3000);
+                }
+                return;
+            }
+
+            // Check if the clicked date falls within a booked range
+            for (var i = 0; i < bookedDates.length; i++) {
+                var b = bookedDates[i];
+                var inDate = b.check_in.substring(0, 10);
+                var outDate = b.check_out.substring(0, 10);
+                if (clickedDateStr >= inDate && clickedDateStr < outDate) {
+                    isBooked = true;
+                    break;
+                }
+            }
+            
+            if (isBooked) {
+                var statusBox = document.getElementById('statusBox');
+                if (statusBox) {
+                    statusBox.className = 'alert alert-danger';
+                    statusBox.innerHTML = '<strong>Error:</strong> This date is already booked.';
+                    statusBox.style.display = 'block';
+                    setTimeout(function(){ statusBox.style.display = 'none'; }, 3000);
+                }
+                return;
+            }
+
+            var checkInInput = document.getElementById('check_in');
+            if (checkInInput) {
+              checkInInput.value = info.dateStr;
+              // Trigger change event to fire overlap validation
+              checkInInput.dispatchEvent(new Event('change'));
+            }
           }
         });
         calendar.render();
+      }
+      
+      // Dynamic Price Calculation & Validation Logic
+      var pkgSelect = document.getElementById('package_id');
+      var numPeople = document.getElementById('num_people');
+      var checkIn = document.getElementById('check_in');
+      var submitBtn = document.getElementById('submitBtn');
+      var statusBox = document.getElementById('statusBox');
+
+      function calculatePrice() {
+        var box = document.getElementById('priceBreakdownBox');
+        if (!pkgSelect || !pkgSelect.value) {
+           box.style.display = 'none';
+           return;
+        }
+        
+        var selectedOpt = pkgSelect.options[pkgSelect.selectedIndex];
+        var baseExclGst = parseFloat(selectedOpt.getAttribute('data-price') || 0); // DB price is now excl GST
+        
+        var people = parseInt(numPeople.value || 1);
+        
+        var extraExclGst = 0;
+        var extraCount = 0;
+        if (people > 4) {
+           extraCount = people - 4;
+           extraExclGst = extraCount * 1500; // Extra person is also excl GST
+        }
+        
+        var totalExclGst = baseExclGst + extraExclGst;
+        var gstAmount = totalExclGst * 0.18;
+        var total = totalExclGst + gstAmount;
+        
+        // Update DOM
+        box.style.display = 'block';
+        document.getElementById('pb-base-val').innerText = '₹' + baseExclGst.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+        
+        var extraDiv = document.getElementById('pb-extra');
+        if (extraCount > 0) {
+           extraDiv.style.setProperty('display', 'flex', 'important');
+           document.getElementById('pb-extra-count').innerText = extraCount;
+           document.getElementById('pb-extra-val').innerText = '₹' + extraExclGst.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+        } else {
+           extraDiv.style.setProperty('display', 'none', 'important');
+        }
+        
+        document.getElementById('pb-gst-val').innerText = '₹' + gstAmount.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+        document.getElementById('pb-total-val').innerText = '₹' + total.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+        
+        validateOverlap();
+      }
+      
+      function validateOverlap() {
+        if (!pkgSelect || !pkgSelect.value || !checkIn || !checkIn.value) return;
+        
+        var selectedOpt = pkgSelect.options[pkgSelect.selectedIndex];
+        var nights = parseInt(selectedOpt.getAttribute('data-duration') || 1);
+        var inDateStr = checkIn.value; // YYYY-MM-DD
+        
+        var inDate = new Date(inDateStr);
+        inDate.setHours(0,0,0,0);
+        var outDate = new Date(inDate.getTime() + (nights * 86400000));
+        
+        var hasOverlap = false;
+        
+        for (var i = 0; i < bookedDates.length; i++) {
+            var bIn = new Date(bookedDates[i].check_in.substring(0, 10));
+            bIn.setHours(0,0,0,0);
+            var bOut = new Date(bookedDates[i].check_out.substring(0, 10));
+            bOut.setHours(0,0,0,0);
+            
+            // Check if (SelectedIn < BookedOut) AND (SelectedOut > BookedIn)
+            if (inDate < bOut && outDate > bIn) {
+                hasOverlap = true;
+                break;
+            }
+        }
+        
+        if (hasOverlap) {
+            statusBox.className = 'alert alert-danger';
+            statusBox.innerHTML = '<strong>Error:</strong> The selected continuous dates overlap with an existing booking. Please choose a different check-in date.';
+            statusBox.style.display = 'block';
+            submitBtn.disabled = true;
+        } else {
+            statusBox.style.display = 'none';
+            submitBtn.disabled = false;
+        }
+      }
+
+      if (pkgSelect) pkgSelect.addEventListener('change', calculatePrice);
+      if (numPeople) numPeople.addEventListener('input', calculatePrice);
+      if (checkIn) checkIn.addEventListener('change', validateOverlap);
+      
+      var btnWhatsapp = document.getElementById('btnWhatsapp');
+      if (btnWhatsapp) {
+        btnWhatsapp.addEventListener('click', function() {
+          var form = document.getElementById('bookingForm');
+          if (!form.reportValidity()) {
+            return;
+          }
+          
+          var name = document.getElementById('user_name').value;
+          var email = document.getElementById('user_email').value;
+          var phone = document.getElementById('user_phone').value;
+          var people = numPeople.value;
+          var dateVal = checkIn.value;
+          
+          var stayType = 'Stay';
+          var radios = document.querySelectorAll('input[name="stay_type"]');
+          radios.forEach(function(r){ if(r.checked) stayType = r.nextElementSibling.innerText; });
+          
+          var pkgText = pkgSelect.options[pkgSelect.selectedIndex].text;
+          var totalAmt = document.getElementById('pb-total-val').innerText;
+          
+          var text = "Hello Kanav Heritage, I have a booking enquiry:\n\n";
+          text += "Name: " + name + "\n";
+          if (email) text += "Email: " + email + "\n";
+          text += "Phone: " + phone + "\n";
+          text += "Booking type: " + stayType + "\n";
+          text += "Selected Package: " + pkgText + " (" + totalAmt + ")\n";
+          text += "No. People: " + people + "\n";
+          text += "Date: " + dateVal;
+          
+          var url = "https://wa.me/919567047633?text=" + encodeURIComponent(text);
+          window.open(url, '_blank');
+        });
       }
     });
   </script>
@@ -570,17 +871,16 @@ if (is_file($seo_helper) && $conn) {
             opt.text = o.text;
             if (o.types) opt.setAttribute('data-types', o.types);
             opt.setAttribute('data-idx', o.idx);
+            opt.setAttribute('data-price', o.price);
+            opt.setAttribute('data-duration', o.duration);
             select.appendChild(opt);
             added++;
           }
         }
 
-        // choose first allowed if any
-        if (added > 0) {
-          select.selectedIndex = 1; // first real option
-        } else {
-          select.selectedIndex = 0; // placeholder
-        }
+        // always default to placeholder
+        select.selectedIndex = 0;
+        select.dispatchEvent(new Event('change'));
       }
 
       document.addEventListener('DOMContentLoaded', function(){
@@ -592,8 +892,10 @@ if (is_file($seo_helper) && $conn) {
           return {
             value: opt.value,
             text: opt.textContent || opt.innerText,
-            types: opt.dataset.types || '',
-            idx: parseInt(opt.dataset.idx || (i)),
+            types: opt.getAttribute('data-types'),
+            idx: parseInt(opt.getAttribute('data-idx') || i),
+            price: opt.getAttribute('data-price') || 0,
+            duration: opt.getAttribute('data-duration') || 1
           };
         });
 
@@ -611,6 +913,30 @@ if (is_file($seo_helper) && $conn) {
       });
     })();
   </script>
+  
+  <!-- Flatpickr for Input -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var bookedDates = <?php echo json_encode($bookedDates); ?>;
+      var disableArr = bookedDates.map(function(b) {
+          return {
+              from: b.check_in.substring(0, 10),
+              to: new Date(new Date(b.check_out).getTime() - 86400000).toISOString().split('T')[0]
+          };
+      });
+      
+      flatpickr("#check_in", {
+          minDate: "today",
+          disable: disableArr,
+          dateFormat: "Y-m-d",
+          onChange: function(selectedDates, dateStr, instance) {
+             document.getElementById('check_in').dispatchEvent(new Event('change'));
+          }
+      });
+    });
+  </script>
+  
   <!-- Booking page specific script (AJAX flow + PhonePe redirect) -->
   <script src="js/booking.js?v=2"></script>
 </body>

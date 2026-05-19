@@ -70,6 +70,25 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(data2.message || `Booking failed (${res2.status})`);
       }
 
+      if (data2.is_enquiry) {
+        showStatus("success", data2.message);
+        const modalHtml = `
+          <div class="kh-modal" id="eventSuccessModal" style="display: flex;">
+            <div class="kh-modal-dialog" style="padding: 30px;">
+              <h4 class="kh-modal-title" style="margin-bottom:15px; color:#111;">Enquiry Received</h4>
+              <p class="kh-modal-text" style="margin-bottom:20px; color:#444;">${data2.message}</p>
+              <button type="button" class="btn-booking" style="width:auto; min-width:120px; margin:0 auto; display:block;" onclick="document.getElementById('eventSuccessModal').remove(); window.location.reload();">Close</button>
+            </div>
+          </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        if (submitBtn) {
+           submitBtn.disabled = false;
+           submitBtn.textContent = "Submit Booking";
+        }
+        return;
+      }
+
       if (data2.redirect_url) {
         window.location.href = data2.redirect_url;
         return;

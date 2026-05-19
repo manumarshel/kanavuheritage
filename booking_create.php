@@ -101,7 +101,18 @@ try {
 
     // Force numeric
     $amountRaw = preg_replace('/[^\d.]/', '', (string)$pkg['price']);
-    $amount = (float)$amountRaw;
+    $baseAmount = (float)$amountRaw;
+    
+    // Extra person charge (₹1500 for each person beyond 4)
+    $extraAmount = 0;
+    if ($num_people > 4) {
+        $extraAmount = ($num_people - 4) * 1500;
+    }
+
+    // Apply 18% GST on top of the total
+    $totalExclGst = $baseAmount + $extraAmount;
+    $amount = $totalExclGst * 1.18;
+
     $nights = (int)$pkg['nights'];
 
     // compute check_out (exclusive end date for overlap math)
@@ -223,6 +234,13 @@ try {
     $ins->execute();
     $bookingId = (int)$conn->insert_id;
     $ins->close();
+
+    if ($stay_type === 'event') {
+        json_ok([
+            'is_enquiry' => true,
+            'message' => 'Your event booking is confirmed. Our agent will call you back shortly.'
+        ]);
+    }
 
     // PhonePe create payment (Standard Checkout)
     $client = new PhonePeClient();
